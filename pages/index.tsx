@@ -24,6 +24,10 @@ const Home: NextPage = () => {
     scrollToBottom();
   }, [messages]);
 
+  React.useEffect(() => {
+    setTimeout(() => addMessageToList("3sek"), 3000);
+  }, []);
+
   const addMessageToList = (text: string) => {
     setMessages((prevMessages) => {
       const messageObject = {
@@ -41,13 +45,21 @@ const Home: NextPage = () => {
     setInputValue("");
   };
 
+  const handleBoxClick = () => {
+    addMessageToList("innyEvent");
+  };
+
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const inputValue = event.target.value.trimStart();
     setInputValue(inputValue);
   };
   return (
     <>
-      <Container maxWidth="md" sx={{ paddingTop: "2rem" }}>
+      <Container
+        maxWidth="md"
+        sx={{ paddingTop: "2rem" }}
+        onClick={handleBoxClick}
+      >
         <Card
           variant="outlined"
           sx={{
