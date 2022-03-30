@@ -2,31 +2,39 @@ import * as React from "react";
 import { Box, Card, Container, FormControl, TextField } from "@mui/material";
 import type { NextPage } from "next";
 
+interface IMessage {
+  text: string;
+  id: number;
+}
+
 const Home: NextPage = () => {
   const [inputValue, setInputValue] = React.useState("");
-  const [messages, setMessages] = React.useState<string[]>([]);
+  const [messages, setMessages] = React.useState<Message[]>([]);
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
-    console.log("handleSubmit");
     setMessages((prevMessages) => {
-      const newMessages = [...prevMessages, inputValue];
+      const messageObject = {
+        text: inputValue,
+        id: parseInt(`${Math.random() * 100}`, 10),
+      };
+      const newMessages = [...prevMessages, messageObject];
       return newMessages;
     });
     setInputValue("");
   };
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const inputValue = event.target.value;
+    const inputValue = event.target.value.trimStart();
     setInputValue(inputValue);
   };
   return (
     <>
       <Container maxWidth="md">
-        <Card sx={{ minHeight: "200px", padding: "5px" }}>
+        <Card sx={{ minHeight: "200px", height: "80vh", padding: "5px" }}>
           {messages.map((message, index) => (
-            <Box sx={{ padding: "5px" }} key={index}>
-              {message}
+            <Box sx={{ padding: "5px" }} key={message.id}>
+              {message.text}
             </Box>
           ))}
         </Card>
