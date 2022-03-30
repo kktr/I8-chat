@@ -4,23 +4,39 @@ import type { NextPage } from "next";
 
 interface IMessage {
   text: string;
-  id: number;
+  id: string;
 }
 
 const Home: NextPage = () => {
   const [inputValue, setInputValue] = React.useState("");
-  const [messages, setMessages] = React.useState<Message[]>([]);
+  const [messages, setMessages] = React.useState<IMessage[]>([]);
+  const messageBoxRef = React.useRef<HTMLDivElement>(null);
 
-  const handleSubmit = (event: React.FormEvent) => {
-    event.preventDefault();
+  const scrollToBottom = () => {
+    messageBoxRef.current?.scrollIntoView({
+      behavior: "smooth",
+      block: "nearest",
+    });
+  };
+
+  React.useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
+  const addMessageToList = (text: string) => {
     setMessages((prevMessages) => {
       const messageObject = {
-        text: inputValue,
-        id: parseInt(`${Math.random() * 100}`, 10),
+        text,
+        id: Math.random().toString(),
       };
       const newMessages = [...prevMessages, messageObject];
       return newMessages;
     });
+  };
+
+  const handleSubmit = (event: React.FormEvent) => {
+    event.preventDefault();
+    addMessageToList(inputValue);
     setInputValue("");
   };
 
@@ -30,16 +46,31 @@ const Home: NextPage = () => {
   };
   return (
     <>
-      <Container maxWidth="md">
-        <Card sx={{ minHeight: "200px", height: "80vh", padding: "5px" }}>
-          {messages.map((message, index) => (
+      <Container maxWidth="md" sx={{ paddingTop: "2rem" }}>
+        <Card
+          variant="outlined"
+          sx={{
+            minHeight: "200px",
+            height: "10vh",
+            padding: "5px",
+            overflow: "auto",
+            borderColor: "blue",
+          }}
+        >
+          {messages.map((message) => (
             <Box sx={{ padding: "5px" }} key={message.id}>
               {message.text}
             </Box>
           ))}
+          <Box ref={messageBoxRef} />
         </Card>
-        <FormControl onSubmit={handleSubmit} component="form">
+        <FormControl
+          onSubmit={handleSubmit}
+          component="form"
+          sx={{ marginTop: "10px", width: "100%" }}
+        >
           <TextField
+            fullWidth
             placeholder="Your message"
             onChange={handleInputChange}
             value={inputValue}
