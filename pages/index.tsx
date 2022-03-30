@@ -1,6 +1,7 @@
 import * as React from "react";
 import { Box, Card, Container, FormControl, TextField } from "@mui/material";
 import type { NextPage } from "next";
+import { Message } from "../components/Message";
 
 interface IMessage {
   text: string;
@@ -51,16 +52,14 @@ const Home: NextPage = () => {
           variant="outlined"
           sx={{
             minHeight: "200px",
-            height: "10vh",
-            padding: "5px",
+            height: "80vh",
+            padding: "10px",
             overflow: "auto",
             borderColor: "blue",
           }}
         >
           {messages.map((message) => (
-            <Box sx={{ padding: "5px" }} key={message.id}>
-              {message.text}
-            </Box>
+            <Message text={message.text} key={message.id} />
           ))}
           <Box ref={messageBoxRef} />
         </Card>
