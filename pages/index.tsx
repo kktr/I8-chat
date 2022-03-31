@@ -31,6 +31,7 @@ const Home: NextPage = () => {
   }, []);
 
   const addMessageToList = (newMessage: string) => {
+    // arrow function inside setStatement - solution for deleting old messages
     setMessages((prevState) => {
       return [...prevState, newMessage];
     });
