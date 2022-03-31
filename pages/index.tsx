@@ -11,6 +11,13 @@ const Home: NextPage = () => {
   const [socket, setSocket] = useState<Socket | null>(null);
   const messageBoxRef = useRef<HTMLDivElement>(null);
 
+  useEffect(() => {
+    const socket = io();
+    socket.on('connected', (arg) => {
+      addMessageToList(arg);
+    });
+  }, []);
+
   const addMessageToList = (newMessage: string) => {
     setMessages([...messages, newMessage]);
   };
