@@ -16,18 +16,31 @@ const Home: NextPage = () => {
     newSocket.on('connected', (arg) => {
       addMessageToList(arg);
     });
+
+    newSocket?.on('In message', (arg: string) => {
+      console.log('In message', arg);
+      addMessageToList(arg);
+    });
+
     setSocket(newSocket);
+
+    return () => {
+      newSocket.removeAllListeners();
+      newSocket.close();
+    };
   }, []);
 
   const addMessageToList = (newMessage: string) => {
-    setMessages([...messages, newMessage]);
+    setMessages((prevState) => {
+      return [...prevState, newMessage];
+    });
   };
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
     addMessageToList(inputValue);
-    setInputValue('');
     socket?.emit('Out message', inputValue);
+    setInputValue('');
   };
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -47,14 +60,14 @@ const Home: NextPage = () => {
   }, [messages]);
 
   const handleBoxClick = () => {
-    addMessageToList('innyEvent');
+    // addMessageToList('innyEvent');
   };
 
-  useEffect(() => {
-    setTimeout(() => {
-      addMessageToList('3sec');
-    }, 3000);
-  }, []);
+  // useEffect(() => {
+  //   setTimeout(() => {
+  //     addMessageToList('3sec');
+  //   }, 3000);
+  // }, []);
 
   return (
     <>
@@ -88,6 +101,7 @@ const Home: NextPage = () => {
             placeholder="Your message"
             onChange={handleInputChange}
             value={inputValue}
+            required
           />
         </FormControl>
       </Container>
