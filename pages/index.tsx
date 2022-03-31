@@ -1,84 +1,78 @@
-import * as React from "react";
-import { Box, Card, Container, FormControl, TextField } from "@mui/material";
-import type { NextPage } from "next";
-import { Message } from "../components/Message";
-
-interface IMessage {
-  text: string;
-  id: string;
-}
+import * as React from 'react';
+import { Box, Card, Container, FormControl, TextField } from '@mui/material';
+import type { NextPage } from 'next';
+import { Message } from '../components/Message';
+import { Socket, io } from 'socket.io-client';
+import { useEffect, useRef, useState } from 'react';
 
 const Home: NextPage = () => {
-  const [inputValue, setInputValue] = React.useState("");
-  const [messages, setMessages] = React.useState<IMessage[]>([]);
-  const messageBoxRef = React.useRef<HTMLDivElement>(null);
+  const [inputValue, setInputValue] = useState<string>('');
+  const [messages, setMessages] = useState<string[]>([]);
+  const [socket, setSocket] = useState<Socket | null>(null);
+  const messageBoxRef = useRef<HTMLDivElement>(null);
 
-  const scrollToBottom = () => {
-    messageBoxRef.current?.scrollIntoView({
-      behavior: "smooth",
-      block: "nearest",
-    });
-  };
-
-  React.useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
-
-  React.useEffect(() => {
-    setTimeout(() => addMessageToList("3sek"), 3000);
-  }, []);
-
-  const addMessageToList = (text: string) => {
-    setMessages((prevMessages) => {
-      const messageObject = {
-        text,
-        id: Math.random().toString(),
-      };
-      const newMessages = [...prevMessages, messageObject];
-      return newMessages;
-    });
+  const addMessageToList = (newMessage: string) => {
+    setMessages([...messages, newMessage]);
   };
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
     addMessageToList(inputValue);
-    setInputValue("");
-  };
-
-  const handleBoxClick = () => {
-    addMessageToList("innyEvent");
+    setInputValue('');
   };
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const inputValue = event.target.value.trimStart();
-    setInputValue(inputValue);
+    const newInputValue = event.target.value.trimStart();
+    setInputValue(newInputValue);
   };
+
+  const scrollToBottom = () => {
+    messageBoxRef.current?.scrollIntoView({
+      behavior: 'smooth',
+      block: 'nearest',
+    });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
+  const handleBoxClick = () => {
+    addMessageToList('innyEvent');
+  };
+
+  useEffect(() => {
+    setTimeout(() => {
+      addMessageToList('3sec');
+    }, 3000);
+  }, []);
+
   return (
     <>
       <Container
         maxWidth="md"
-        sx={{ paddingTop: "2rem" }}
+        sx={{ paddingTop: '2rem' }}
         onClick={handleBoxClick}
       >
         <Card
           variant="outlined"
           sx={{
-            minHeight: "200px",
-            height: "80vh",
-            padding: "10px",
-            overflow: "auto",
-            borderColor: "blue",
+            minHeight: '200px',
+            height: '80vh',
+            padding: '10px',
+            overflow: 'auto',
+            borderColor: 'blue',
           }}
         >
           {messages.map((message) => (
-            <Message text={message.text} key={message.id} />
+            <Message text={message} />
           ))}
           <Box ref={messageBoxRef} />
         </Card>
         <FormControl
           onSubmit={handleSubmit}
           component="form"
-          sx={{ marginTop: "10px", width: "100%" }}
+          sx={{ marginTop: '10px', width: '100%' }}
         >
           <TextField
             fullWidth
