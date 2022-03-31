@@ -12,10 +12,11 @@ const Home: NextPage = () => {
   const messageBoxRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const socket = io();
-    socket.on('connected', (arg) => {
+    const newSocket = io();
+    newSocket.on('connected', (arg) => {
       addMessageToList(arg);
     });
+    setSocket(newSocket);
   }, []);
 
   const addMessageToList = (newMessage: string) => {
@@ -26,6 +27,7 @@ const Home: NextPage = () => {
     event.preventDefault();
     addMessageToList(inputValue);
     setInputValue('');
+    socket?.emit('Out message', inputValue);
   };
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
