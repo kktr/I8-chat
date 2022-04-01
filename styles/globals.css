@@ -14,3 +14,56 @@ a {
 * {
   box-sizing: border-box;
 }
+
+.flex {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between
+
+}
+
+.rooms {
+  display: flex;
+  flex-direction: column;
+}
+
+
+.rooms__header {
+  margin: 0 auto 1rem;
+
+}
+
+
+.button {
+  width: 8rem;
+  height: 2.4rem;
+  margin: 0.5rem auto;
+  border: none;
+  border-radius: 5px;
+  background-image: linear-gradient(135deg, #8fee8f 10%, #00ffa3 100%);
+  color: black;
+  box-shadow: 0 0 30px -5px rgba(0, 0, 0, 25%);
+  font-weight: 700;
+  font-size: 1rem;
+  line-height: initial;
+  cursor: pointer;
+  transition-duration: 200ms;
+}
+
+.button:hover,
+.button:focus {
+  transform: scale(0.98);
+  opacity: 0.95;
+}
+
+.button:active {
+  transform: scale(0.95);
+}
+
+.active {
+  color: red;
+}
+
+.clear {
+  background-image: linear-gradient(135deg, #ff8800 10%, #ff6600 100%);
+}
