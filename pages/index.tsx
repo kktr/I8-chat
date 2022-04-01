@@ -8,39 +8,52 @@ import { useEffect, useRef, useState } from 'react';
 const Home: NextPage = () => {
   const [inputValue, setInputValue] = useState<string>('');
   const [messages, setMessages] = useState<string[]>([]);
+  const [messagesRoom1, setMessagesRoom1] = useState<string[]>([]);
   const [socket, setSocket] = useState<Socket | null>(null);
   const messageBoxRef = useRef<HTMLDivElement>(null);
+  const [room, setRoom] = useState<string>('default');
 
   useEffect(() => {
     const newSocket = io();
-    newSocket.on('connected', (arg) => {
-      addMessageToList(arg);
-    });
-
-    newSocket?.on('In message', (arg: string) => {
-      console.log('In message', arg);
-      addMessageToList(arg);
-    });
-
     setSocket(newSocket);
+
+    newSocket.on('connection', (socket) => {});
+
+    newSocket?.on('In message', ({ inputValue, room }) => {
+      console.log('In message', inputValue);
+      addMessageToList(inputValue, room);
+    });
 
     return () => {
       newSocket.removeAllListeners();
       newSocket.close();
     };
-  }, []);
+  }, [room]);
 
-  const addMessageToList = (newMessage: string) => {
-    // arrow function inside setStatement - solution for deleting old messages
-    setMessages((prevState) => {
-      return [...prevState, newMessage];
+  useEffect(() => {
+    socket?.emit('join-room', room);
+  }, [room, socket]);
+
+  useEffect(() => {
+    socket?.on('connected', (arg) => {
+      addMessageToList(arg, room);
     });
+  }, [socket]);
+
+  const addMessageToList = (inputValue: string, chosenRoom: string) => {
+    chosenRoom === 'default'
+      ? setMessages((prevState) => {
+          return [...prevState, inputValue];
+        })
+      : setMessagesRoom1((prevState) => {
+          return [...prevState, inputValue];
+        });
   };
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
-    addMessageToList(inputValue);
-    socket?.emit('Out message', inputValue);
+    addMessageToList(inputValue, room);
+    socket?.emit('Out message', { inputValue, room });
     setInputValue('');
   };
 
@@ -70,6 +83,17 @@ const Home: NextPage = () => {
   //   }, 3000);
   // }, []);
 
+  const handleClear = () => {
+    room === 'default' ? setMessages([]) : setMessagesRoom1([]);
+  };
+
+  const handleClick = (
+    event: React.MouseEvent<HTMLButtonElement, MouseEvent>
+  ) => {
+    event.preventDefault();
+    setRoom(event.currentTarget.value);
+  };
+
   return (
     <>
       <Container
@@ -77,34 +101,68 @@ const Home: NextPage = () => {
         sx={{ paddingTop: '2rem' }}
         onClick={handleBoxClick}
       >
-        <Card
-          variant="outlined"
-          sx={{
-            minHeight: '200px',
-            height: '80vh',
-            padding: '10px',
-            overflow: 'auto',
-            borderColor: 'blue',
-          }}
-        >
-          {messages.map((message) => (
-            <Message text={message} />
-          ))}
-          <Box ref={messageBoxRef} />
-        </Card>
-        <FormControl
-          onSubmit={handleSubmit}
-          component="form"
-          sx={{ marginTop: '10px', width: '100%' }}
-        >
-          <TextField
-            fullWidth
-            placeholder="Your message"
-            onChange={handleInputChange}
-            value={inputValue}
-            required
-          />
-        </FormControl>
+        <div className="flex">
+          <div className="rooms">
+            <h2 className="rooms__header">Rooms</h2>
+            <button
+              onClick={handleClick}
+              id="default"
+              value="default"
+              className={room === 'default' ? 'button active' : 'button'}
+            >
+              Default
+            </button>
+            <button
+              onClick={handleClick}
+              id="room1"
+              className={room === 'room1' ? 'button active' : 'button'}
+              value="room1"
+            >
+              Room one
+            </button>
+            <button
+              onClick={handleClear}
+              id="clear"
+              className="button clear"
+              value="clear"
+            >
+              Clear
+            </button>
+          </div>
+
+          <div>
+            <Card
+              variant="outlined"
+              sx={{
+                minHeight: '200px',
+                height: '80vh',
+                width: '700px',
+                padding: '10px',
+                overflow: 'auto',
+                borderColor: 'blue',
+              }}
+            >
+              {room === 'default'
+                ? messages.map((message) => <Message text={message} />)
+                : messagesRoom1.map((message2) => <Message text={message2} />)}
+              <Box ref={messageBoxRef} />
+            </Card>
+
+            <FormControl
+              onSubmit={handleSubmit}
+              component="form"
+              sx={{ marginTop: '10px', width: '100%' }}
+            >
+              <TextField
+                fullWidth
+                placeholder="Your message"
+                onChange={handleInputChange}
+                value={inputValue}
+                required
+              />
+            </FormControl>
+          </div>
+        </div>
       </Container>
     </>
   );

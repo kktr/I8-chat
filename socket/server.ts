@@ -6,9 +6,14 @@ export function setupHandlers(io: Server) {
     console.log('Client connected');
     socket.emit('connected', 'Connected');
 
-    socket.on('Out message', (arg: string) => {
-      console.log('Out message', arg);
-      socket.broadcast.emit('In message', arg);
+    socket.on('join-room', (room: string) => {
+      // socket.rooms.clear();
+      socket.join(room);
+    });
+
+    socket.on('Out message', ({ inputValue, room }) => {
+      console.log('Out message', inputValue);
+      socket.to(['default', 'room1']).emit('In message', { inputValue, room });
     });
   });
 }
