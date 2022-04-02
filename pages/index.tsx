@@ -1,4 +1,3 @@
-import * as React from 'react';
 import { Box, Card, Container, FormControl, TextField } from '@mui/material';
 import type { NextPage } from 'next';
 import { Message } from '../components/Message';
@@ -11,7 +10,7 @@ const Home: NextPage = () => {
   const [messagesRoom1, setMessagesRoom1] = useState<string[]>([]);
   const [socket, setSocket] = useState<Socket | null>(null);
   const messageBoxRef = useRef<HTMLDivElement>(null);
-  const [room, setRoom] = useState<string>('default');
+  const [room, setRoom] = useState<string | undefined>();
 
   useEffect(() => {
     const newSocket = io();
@@ -31,14 +30,18 @@ const Home: NextPage = () => {
   }, [room]);
 
   useEffect(() => {
+    setRoom('default');
+  }, []);
+
+  useEffect(() => {
     socket?.emit('join-room', room);
   }, [room, socket]);
 
-  useEffect(() => {
-    socket?.on('connected', (arg) => {
-      addMessageToList(arg, room);
-    });
-  }, [socket]);
+  // useEffect(() => {
+  //   socket?.on('connected', (arg) => {
+  //     addMessageToList(arg, room);
+  //   });
+  // }, [socket]);
 
   const addMessageToList = (inputValue: string, chosenRoom: string) => {
     chosenRoom === 'default'
@@ -52,6 +55,7 @@ const Home: NextPage = () => {
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
+    if (room === undefined) return;
     addMessageToList(inputValue, room);
     socket?.emit('Out message', { inputValue, room });
     setInputValue('');
@@ -143,8 +147,18 @@ const Home: NextPage = () => {
               }}
             >
               {room === 'default'
-                ? messages.map((message) => <Message text={message} />)
-                : messagesRoom1.map((message2) => <Message text={message2} />)}
+                ? messages.map((message, index) => (
+                    <Message
+                      text={message}
+                      key={`default-${index.toString()}`}
+                    />
+                  ))
+                : messagesRoom1.map((message2, index) => (
+                    <Message
+                      text={message2}
+                      key={`room1-${index.toString()}`}
+                    />
+                  ))}
               <Box ref={messageBoxRef} />
             </Card>
 
